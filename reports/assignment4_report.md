@@ -24,9 +24,21 @@ flowchart LR
 ```
 
 Implementation: `kubeflow/pipeline.py`. Compilation produces `support_pipeline.yaml`, which can be
-uploaded to a Kubeflow Pipelines UI. Kubeflow's compiler converts the Python pipeline into an IR YAML
-submission package as described in its
-[official compilation guide](https://www.kubeflow.org/docs/components/pipelines/user-guides/core-functions/compile-a-pipeline/).
+uploaded to a Kubeflow Pipelines UI.
+
+![Compiled Kubeflow pipeline graph](screenshots/assignment4/04_kubeflow_pipeline_run.png)
+
+*Figure 1. Compiled Kubeflow pipeline definition. The graph shows the required execution order from
+data gathering and validation through training, promotion and serving reload.*
+
+Figure 1 represents the uploaded pipeline topology rather than an execution result. The successful
+execution is shown separately in Figure 2, where every component has a green completion indicator.
+
+![Successful Kubeflow pipeline run and validation logs](screenshots/assignment4/05_kubeflow_validation.png)
+
+*Figure 2. Successful Kubeflow run `assignment4-evidence-20260824-165557`. All five components
+completed, and the selected validation component reports 1,552 rows, eight classes and zero
+duplicates.*
 
 ## 2. Pipeline steps
 
@@ -38,9 +50,40 @@ submission package as described in its
 | Evaluate/promote | `python -m support_classifier.promote` | Reads version file; moves alias only when macro-F1 gate passes |
 | Serve | `POST /reload` from a curl component | API replicas resolve current `@champion` |
 
+![Successful Airflow DAG runs](screenshots/assignment4/01_airflow_dag_success.png)
+
+*Figure 3. Airflow data-ingestion DAG. The enabled `support_data_ingestion` workflow has three
+successful runs, demonstrating repeatable scheduled data gathering.*
+
+![Airflow ingestion task log](screenshots/assignment4/02_airflow_ingestion_log.png)
+
+*Figure 4. Airflow ingestion task log. The task retrieves the BANKING77 source, validates the
+records and returns the MinIO destination `s3://support-data/training/latest.csv` together with the
+1,552-row and eight-class dataset summary.*
+
+![Dataset stored in MinIO](screenshots/assignment4/03_minio_dataset.png)
+
+*Figure 5. MinIO object browser. The processed `latest.csv` dataset is present in the
+`support-data/training` path and is available to the downstream Kubeflow components.*
+
 Training incorporates data processing and optional parameter tuning in one container because both
 must fit transformations only on training folds. Kubeflow still exposes it as a distinct named step,
 and MLflow stores each tried run's selected parameter and final held-out metrics.
+
+![MLflow training metrics and parameters](screenshots/assignment4/06_mlflow_training_metrics.png)
+
+*Figure 6. Finished MLflow training run. It records accuracy 0.9716, macro F1 0.9726, the selected
+`C=2.0`, 1,552 training rows, eight classes and the registered model version.*
+
+![MLflow evaluation artifact](screenshots/assignment4/07_mlflow_artifacts.png)
+
+*Figure 7. MLflow evaluation artifact. The stored `model.metrics.json` report contains per-class
+precision, recall, F1 and support, allowing detailed quality analysis beyond aggregate metrics.*
+
+![MLflow registered model and aliases](screenshots/assignment4/08_mlflow_registry.png)
+
+*Figure 8. MLflow Model Registry. Version 7 of `support-ticket-classifier` is registered and the
+stable `champion` alias identifies the version that serving must load.*
 
 ## 3. Infrastructure integration
 
@@ -108,6 +151,23 @@ separate temporal holdout and agent-reviewed evaluation before deployment.
 The course implementation automates the relative macro-F1 gate. The absolute and per-class gates are
 documented release checks and can be added to `promote.py` when enough representative labelled data
 is available.
+
+![Champion challenger comparison](screenshots/assignment4/09_promotion_comparison.png)
+
+*Figure 9. Kubeflow promotion-step log. Candidate version 7 is compared with champion version 6;
+both have macro F1 0.972586. With `required_improvement=0.0`, the quality gate passes and the
+candidate is promoted.*
+
+![Prediction from the champion model](screenshots/assignment4/10_serving_prediction.png)
+
+*Figure 10. Successful FastAPI `/predict` request. The service returns HTTP 200, the predicted
+intent, routing group, confidence and the model source
+`models:/support-ticket-classifier@champion`.*
+
+![Serving API health response](screenshots/assignment4/11_serving_health.png)
+
+*Figure 11. FastAPI `/health` response. The service reports `ok` and confirms that the model behind
+the `champion` alias is loaded after the pipeline decision.*
 
 ## 6. Observability
 
