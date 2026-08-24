@@ -1,9 +1,9 @@
 # Adaptive Customer Support Classification
 
-An end-to-end MLOps course project that classifies customer-support requests by
-intent and routes them to a support queue. The repository grows through four
-assignments: design, baseline serving, experiment tracking and champion–challenger
-deployment, and a Kubeflow-compatible production pipeline.
+An end-to-end MLOps service that classifies customer-support requests by intent
+and routes them to the appropriate support queue. It includes automated data
+ingestion, validation, model training, MLflow tracking and registration,
+champion-challenger promotion, and FastAPI serving.
 
 ## Repository map
 
@@ -12,7 +12,6 @@ src/support_classifier/   application, training, ingestion and promotion code
 dags/                     Airflow data-ingestion DAG
 kubeflow/                 Kubeflow Pipelines v2 definition
 data/                     small offline seed dataset
-reports/                  one report per assignment and demo instructions
 tests/                    fast local checks
 docker/                   container images and reverse-proxy configuration
 ```
@@ -30,12 +29,20 @@ curl -s http://localhost:8000/predict \
   -d '{"query":"I do not recognize this cash withdrawal"}'
 ```
 
-For the complete stack and assignment-by-assignment demo, see
-[`reports/demo.md`](reports/demo.md).
+## Complete stack
 
-## Reports
+Start the data pipeline, MLflow, MinIO, Airflow, prediction API and Nginx gateway:
 
-- [`Assignment 1 — design`](reports/assignment1_design.md)
-- [`Assignment 2 — baseline and data ingestion`](reports/assignment2_report.md)
-- [`Assignment 3 — MLflow and champion–challenger`](reports/assignment3_report.md)
-- [`Assignment 4 — full Kubeflow pipeline`](reports/assignment4_report.md)
+```bash
+docker compose up --build
+```
+
+Local endpoints:
+
+- prediction API and Swagger UI: `http://localhost:8000/docs`;
+- MLflow: `http://localhost:5000`;
+- MinIO console: `http://localhost:9001`;
+- Airflow: `http://localhost:8080` (`admin` / `admin`).
+
+The Kubeflow pipeline definition is in `kubeflow/pipeline.py`; the compiled
+pipeline specification is `support_pipeline.yaml`.
