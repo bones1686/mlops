@@ -1,0 +1,247 @@
+# PIPELINE DEFINITION
+# Name: adaptive-support-classification
+# Description: Gather, validate, tune, train, register, compare and serve the best classifier.
+# Inputs:
+#    c_values: str [Default: '0.5,1.0,2.0']
+#    min_improvement: float [Default: 0.0]
+#    serving_url: str [Default: 'http://support-api.default.svc.cluster.local:8000']
+components:
+  comp-evaluate-and-promote:
+    executorLabel: exec-evaluate-and-promote
+    inputDefinitions:
+      parameters:
+        candidate_version:
+          parameterType: STRING
+        min_improvement:
+          defaultValue: 0.0
+          isOptional: true
+          parameterType: NUMBER_DOUBLE
+  comp-gather-data:
+    executorLabel: exec-gather-data
+  comp-reload-serving:
+    executorLabel: exec-reload-serving
+    inputDefinitions:
+      parameters:
+        service_url:
+          parameterType: STRING
+  comp-tune-train-and-register:
+    executorLabel: exec-tune-train-and-register
+    inputDefinitions:
+      parameters:
+        c_values:
+          defaultValue: 0.5,1.0,2.0
+          isOptional: true
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        candidate_version:
+          parameterType: STRING
+  comp-validate-data:
+    executorLabel: exec-validate-data
+deploymentSpec:
+  executors:
+    exec-evaluate-and-promote:
+      container:
+        args:
+        - --version
+        - '{{$.inputs.parameters[''candidate_version'']}}'
+        - --min-improvement
+        - '{{$.inputs.parameters[''min_improvement'']}}'
+        command:
+        - python
+        - -m
+        - support_classifier.promote
+        env:
+        - name: PROJECT_ROOT
+          value: /app
+        - name: MLFLOW_TRACKING_URI
+          value: http://host.docker.internal:5000
+        - name: MLFLOW_S3_ENDPOINT_URL
+          value: http://host.docker.internal:9000
+        - name: S3_ENDPOINT_URL
+          value: http://host.docker.internal:9000
+        - name: AWS_ACCESS_KEY_ID
+          value: minioadmin
+        - name: AWS_SECRET_ACCESS_KEY
+          value: minioadmin
+        - name: DATA_BUCKET
+          value: support-data
+        - name: DATA_KEY
+          value: training/latest.csv
+        - name: MODEL_NAME
+          value: support-ticket-classifier
+        image: support-classifier:0.1.0
+    exec-gather-data:
+      container:
+        command:
+        - python
+        - -m
+        - support_classifier.ingest
+        env:
+        - name: PROJECT_ROOT
+          value: /app
+        - name: MLFLOW_TRACKING_URI
+          value: http://host.docker.internal:5000
+        - name: MLFLOW_S3_ENDPOINT_URL
+          value: http://host.docker.internal:9000
+        - name: S3_ENDPOINT_URL
+          value: http://host.docker.internal:9000
+        - name: AWS_ACCESS_KEY_ID
+          value: minioadmin
+        - name: AWS_SECRET_ACCESS_KEY
+          value: minioadmin
+        - name: DATA_BUCKET
+          value: support-data
+        - name: DATA_KEY
+          value: training/latest.csv
+        - name: MODEL_NAME
+          value: support-ticket-classifier
+        image: support-classifier:0.1.0
+    exec-reload-serving:
+      container:
+        args:
+        - curl -fsS -X POST "$1/reload"
+        - --
+        - '{{$.inputs.parameters[''service_url'']}}'
+        command:
+        - sh
+        - -c
+        image: curlimages/curl:8.10.1
+    exec-tune-train-and-register:
+      container:
+        args:
+        - --c-values
+        - '{{$.inputs.parameters[''c_values'']}}'
+        - --version-output
+        - '{{$.outputs.parameters[''candidate_version''].output_file}}'
+        command:
+        - python
+        - -m
+        - support_classifier.train
+        env:
+        - name: PROJECT_ROOT
+          value: /app
+        - name: MLFLOW_TRACKING_URI
+          value: http://host.docker.internal:5000
+        - name: MLFLOW_S3_ENDPOINT_URL
+          value: http://host.docker.internal:9000
+        - name: S3_ENDPOINT_URL
+          value: http://host.docker.internal:9000
+        - name: AWS_ACCESS_KEY_ID
+          value: minioadmin
+        - name: AWS_SECRET_ACCESS_KEY
+          value: minioadmin
+        - name: DATA_BUCKET
+          value: support-data
+        - name: DATA_KEY
+          value: training/latest.csv
+        - name: MODEL_NAME
+          value: support-ticket-classifier
+        image: support-classifier:0.1.0
+    exec-validate-data:
+      container:
+        command:
+        - python
+        - -m
+        - support_classifier.validate
+        env:
+        - name: PROJECT_ROOT
+          value: /app
+        - name: MLFLOW_TRACKING_URI
+          value: http://host.docker.internal:5000
+        - name: MLFLOW_S3_ENDPOINT_URL
+          value: http://host.docker.internal:9000
+        - name: S3_ENDPOINT_URL
+          value: http://host.docker.internal:9000
+        - name: AWS_ACCESS_KEY_ID
+          value: minioadmin
+        - name: AWS_SECRET_ACCESS_KEY
+          value: minioadmin
+        - name: DATA_BUCKET
+          value: support-data
+        - name: DATA_KEY
+          value: training/latest.csv
+        - name: MODEL_NAME
+          value: support-ticket-classifier
+        image: support-classifier:0.1.0
+pipelineInfo:
+  description: Gather, validate, tune, train, register, compare and serve the best
+    classifier.
+  name: adaptive-support-classification
+root:
+  dag:
+    tasks:
+      evaluate-and-promote:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-evaluate-and-promote
+        dependentTasks:
+        - tune-train-and-register
+        inputs:
+          parameters:
+            candidate_version:
+              taskOutputParameter:
+                outputParameterKey: candidate_version
+                producerTask: tune-train-and-register
+            min_improvement:
+              componentInputParameter: min_improvement
+        taskInfo:
+          name: evaluate-and-promote
+      gather-data:
+        cachingOptions: {}
+        componentRef:
+          name: comp-gather-data
+        taskInfo:
+          name: gather-data
+      reload-serving:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-reload-serving
+        dependentTasks:
+        - evaluate-and-promote
+        inputs:
+          parameters:
+            service_url:
+              componentInputParameter: serving_url
+        taskInfo:
+          name: reload-serving
+      tune-train-and-register:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-tune-train-and-register
+        dependentTasks:
+        - validate-data
+        inputs:
+          parameters:
+            c_values:
+              componentInputParameter: c_values
+        taskInfo:
+          name: tune-train-and-register
+      validate-data:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-validate-data
+        dependentTasks:
+        - gather-data
+        taskInfo:
+          name: validate-data
+  inputDefinitions:
+    parameters:
+      c_values:
+        defaultValue: 0.5,1.0,2.0
+        isOptional: true
+        parameterType: STRING
+      min_improvement:
+        defaultValue: 0.0
+        isOptional: true
+        parameterType: NUMBER_DOUBLE
+      serving_url:
+        defaultValue: http://support-api.default.svc.cluster.local:8000
+        isOptional: true
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.17.0

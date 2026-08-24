@@ -1,0 +1,4 @@
+
+Create main component of your system from the assignment 1.
+1. For this assignment you should create a baseline model for your system, create an API wrap around it (FastAPI, Seldon, BentoML, etc. but you can use other frameworks as well), put it in the docker container and make a demo how your API works.
+2. Train a baseline model. You should organise your data for training in DB or object storage (this may be S3, minio or other storage). Create an Airflow job for putting new data to your storage (training dataset)

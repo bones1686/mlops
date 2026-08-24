@@ -1,0 +1,4 @@
+Add MLFlow tracking for the training service.
+- To do that, add MLFlow backend (you can use your server or Databricks or any other system you want)
+- Save training artefacts to the object storage- Make model service scalable
+- Use challenger-champion scheme for deployment

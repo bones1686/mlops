@@ -1,0 +1,65 @@
+query,intent
+How can I activate my new card,activate_my_card
+My card activation does not work,activate_my_card
+Where do I activate the replacement card,activate_my_card
+I need help activating my physical card,activate_my_card
+Can the card be activated in the app,activate_my_card
+The activation code is failing,activate_my_card
+Please activate the card I received today,activate_my_card
+Why is my new card still inactive,activate_my_card
+I cannot add a new beneficiary,beneficiary_not_allowed
+Why is the recipient not allowed,beneficiary_not_allowed
+The app blocks my beneficiary,beneficiary_not_allowed
+I cannot transfer to this payee,beneficiary_not_allowed
+Adding a recipient keeps failing,beneficiary_not_allowed
+Why was my beneficiary rejected,beneficiary_not_allowed
+The new payee is disabled,beneficiary_not_allowed
+Please allow this transfer beneficiary,beneficiary_not_allowed
+When will my card arrive,card_arrival
+I am still waiting for card delivery,card_arrival
+How long does a new card take to arrive,card_arrival
+Can I track the delivery of my card,card_arrival
+My replacement card has not arrived,card_arrival
+Where is the card you sent me,card_arrival
+What is the estimated delivery date,card_arrival
+The card delivery is late,card_arrival
+How do I withdraw cash,declined_cash_withdrawal
+Can I get money from an ATM,declined_cash_withdrawal
+Where can I make a cash withdrawal,declined_cash_withdrawal
+The ATM will not let me withdraw,declined_cash_withdrawal
+I need to take cash out,declined_cash_withdrawal
+Which ATMs support withdrawals,declined_cash_withdrawal
+Why was my withdrawal declined,declined_cash_withdrawal
+Help me withdraw money from my account,declined_cash_withdrawal
+I do not recognize this cash withdrawal,cash_withdrawal_not_recognised
+Someone took money from an ATM using my card,cash_withdrawal_not_recognised
+There is an unknown ATM transaction,cash_withdrawal_not_recognised
+This withdrawal was not made by me,cash_withdrawal_not_recognised
+I see cash taken out that I did not request,cash_withdrawal_not_recognised
+Please investigate an unfamiliar withdrawal,cash_withdrawal_not_recognised
+My account shows a fraudulent ATM charge,cash_withdrawal_not_recognised
+I never withdrew this amount,cash_withdrawal_not_recognised
+The ATM used the wrong exchange rate,wrong_exchange_rate_for_cash_withdrawal
+I was charged too much for a foreign withdrawal,wrong_exchange_rate_for_cash_withdrawal
+The cash conversion rate is incorrect,wrong_exchange_rate_for_cash_withdrawal
+Why is the ATM exchange rate so bad,wrong_exchange_rate_for_cash_withdrawal
+My overseas withdrawal has the wrong rate,wrong_exchange_rate_for_cash_withdrawal
+The converted cash amount is incorrect,wrong_exchange_rate_for_cash_withdrawal
+I need a refund for an ATM exchange rate error,wrong_exchange_rate_for_cash_withdrawal
+Foreign cash withdrawal conversion looks wrong,wrong_exchange_rate_for_cash_withdrawal
+How can I change my PIN,change_pin
+I forgot my card PIN,change_pin
+Where can I set a new PIN,change_pin
+The app will not update my PIN,change_pin
+I want a different card PIN,change_pin
+Can I reset the PIN at an ATM,change_pin
+Please help me replace my PIN,change_pin
+My new PIN change did not work,change_pin
+Why is my transfer still pending,pending_transfer
+The bank transfer has not completed,pending_transfer
+My recipient is waiting for the money,pending_transfer
+How long will the pending transfer take,pending_transfer
+The transfer is stuck in progress,pending_transfer
+When will my payment reach the beneficiary,pending_transfer
+I sent money but it has not arrived,pending_transfer
+Please check the status of my pending transfer,pending_transfer

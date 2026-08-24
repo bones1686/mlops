@@ -1,0 +1,5 @@
+In this task, you will need to finish the full pipeline for the project from assignment 1.
+
+Your pipeline should include the following: gather the full pipeline of the model on the sagemaker, databricks or Kubeflow, and combine with the previous tasks using you favourite tools for everything (or tools that make the most sense) and prepare a short presentation/demo.
+
+The pipeline should include the following steps: data gathering (using airflow or other orchestrator, from prev. assignment), data processing step, model training step, parameters tuning step (this one is optional, if it makes sense), registering the model in model registry, logging all needed metrics, evaluating to detect if it is better then previous model, serving the best model.

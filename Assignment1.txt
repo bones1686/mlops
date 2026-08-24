@@ -1,0 +1,17 @@
+Important: you will be implementing the system during the course so it shouldn't be too complicated. It should include at least 1 ML model. You should be able to get or gather data for the system.
+Deliverables:
+
+Define the problem statement and objectives.
+Diagram of the overall system architecture (data flows, components, and interactions).
+Description of the ML models involved, including short description.
+Specify the datasets and data updates.
+Describe(high level) the data preprocessing steps and how data will be managed and stored.
+Break down the system into microservices.
+Describe the role and functionality of each service in the context of the overall system.
+Explain the communication between services (e.g., REST APIs, message queues).
+List the operational requirements for each service, like: scalability, performance.
+Specify the tools and technologies that you'll use for the implementation.
+Define how the performance of the machine learning model will be measured.
+Outline the criteria for success of the overall system from both a technical and business perspective.
+Design doc guidelines:
+https://github.com/eugeneyan/ml-design-docs
